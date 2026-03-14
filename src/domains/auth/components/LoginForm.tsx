@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/src/components';
@@ -14,6 +15,8 @@ import {
 import { isCountableFailure } from '../utils/helpers';
 
 export const LoginForm = () => {
+  const router = useRouter();
+
   const [formError, setFormError] = useState('');
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
@@ -99,7 +102,7 @@ export const LoginForm = () => {
       sessionStorage.removeItem('bookingCode');
     }
 
-    console.log('Login successful');
+    router.push('/destinations');
   };
 
   return (

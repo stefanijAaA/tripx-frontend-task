@@ -8,16 +8,7 @@ import {
 import { ProvidersProps } from './types';
 
 export const QueryClientProvider: FC<ProvidersProps> = ({ children }) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            refetchOnWindowFocus: false,
-          },
-        },
-      }),
-  );
+  const [queryClient] = useState(() => new QueryClient());
 
   return (
     <TanstackQueryClientProvider client={queryClient}>
