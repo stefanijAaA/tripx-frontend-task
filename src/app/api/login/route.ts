@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     });
   } catch {
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: 'Unable to reach login service' },
       { status: 500 },
     );
   }

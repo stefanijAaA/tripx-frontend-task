@@ -1,15 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/src/components';
 import { LoginFormValues } from '../types';
 import { loginSchema } from '../validation/schema';
-import { loginUser } from '../api/login';
+import { login } from '@/src/services';
+import {
+  MAX_FAILED_ATTEMPTS,
+  LOCKOUT_DURATION_SECONDS,
+} from '../utils/constants';
+import { isCountableFailure } from '../utils/helpers';
 
-export function LoginForm() {
+export const LoginForm = () => {
   const [formError, setFormError] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutRemaining, setLockoutRemaining] = useState(0);
+
+  const isLocked = lockoutRemaining > 0;
 
   const {
     register,
@@ -25,14 +34,69 @@ export function LoginForm() {
     mode: 'onSubmit',
   });
 
+  useEffect(() => {
+    if (!isLocked) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setLockoutRemaining((previousValue) => {
+        if (previousValue <= 1) {
+          clearInterval(interval);
+          setFailedAttempts(0);
+          setFormError('');
+          return 0;
+        }
+
+        return previousValue - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isLocked]);
+
   const onSubmit = async (values: LoginFormValues) => {
+    if (isLocked) {
+      return;
+    }
+
     setFormError('');
 
-    const result = await loginUser(values);
+    const result = await login({
+      username: values.username,
+      password: values.password,
+    });
 
     if (!result.success) {
+      const shouldCountAsFailedAttempt = isCountableFailure(result.errorType);
+
+      if (shouldCountAsFailedAttempt) {
+        const nextFailedAttempts = failedAttempts + 1;
+
+        if (nextFailedAttempts >= MAX_FAILED_ATTEMPTS) {
+          setFailedAttempts(MAX_FAILED_ATTEMPTS);
+          setLockoutRemaining(LOCKOUT_DURATION_SECONDS);
+          setFormError(
+            `Too many failed attempts. Please wait ${LOCKOUT_DURATION_SECONDS} seconds before trying again.`,
+          );
+          return;
+        }
+
+        setFailedAttempts(nextFailedAttempts);
+      }
+
       setFormError(result.message);
       return;
+    }
+
+    setFailedAttempts(0);
+    setLockoutRemaining(0);
+    setFormError('');
+
+    if (values.bookingCode) {
+      sessionStorage.setItem('bookingCode', values.bookingCode);
+    } else {
+      sessionStorage.removeItem('bookingCode');
     }
 
     console.log('Login successful');
@@ -52,6 +116,7 @@ export function LoginForm() {
         label='Username'
         placeholder='Enter your username'
         error={errors.username?.message}
+        disabled={isSubmitting || isLocked}
         {...register('username')}
       />
 
@@ -61,6 +126,7 @@ export function LoginForm() {
         label='Password'
         placeholder='Enter your password'
         error={errors.password?.message}
+        disabled={isSubmitting || isLocked}
         {...register('password')}
       />
 
@@ -71,16 +137,21 @@ export function LoginForm() {
         labelSuffix='(optional)'
         placeholder='Enter booking code'
         error={errors.bookingCode?.message}
+        disabled={isSubmitting || isLocked}
         {...register('bookingCode')}
       />
 
       <button
         type='submit'
-        disabled={isSubmitting}
-        className='w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-70 hover: cursor-pointer'
+        disabled={isSubmitting || isLocked}
+        className='w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer'
       >
-        {isSubmitting ? 'Signing in...' : 'Sign in'}
+        {isSubmitting
+          ? 'Signing in...'
+          : isLocked
+            ? `Try again in ${lockoutRemaining}s`
+            : 'Sign in'}
       </button>
     </form>
   );
-}
+};
