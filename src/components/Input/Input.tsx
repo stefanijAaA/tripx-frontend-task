@@ -1,0 +1,38 @@
+import { forwardRef } from 'react';
+import { InputProps } from './types';
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ id, label, labelSuffix, error, className = '', ...props }, ref) => {
+    return (
+      <div>
+        <div className='mb-2 flex items-center gap-1'>
+          <label
+            htmlFor={id}
+            className='block text-sm font-medium text-slate-700'
+          >
+            {label}
+          </label>
+
+          {labelSuffix ? (
+            <span className='text-sm text-slate-400'>{labelSuffix}</span>
+          ) : null}
+        </div>
+
+        <input
+          ref={ref}
+          id={id}
+          className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-4 ${
+            error
+              ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+              : 'border-slate-300 focus:border-sky-500 focus:ring-sky-100'
+          } ${className}`}
+          {...props}
+        />
+
+        {error ? <p className='mt-2 text-sm text-red-600'>{error}</p> : null}
+      </div>
+    );
+  },
+);
+
+Input.displayName = 'Input';
