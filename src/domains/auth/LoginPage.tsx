@@ -1,6 +1,6 @@
 import { LoginForm } from './components';
 
-export function LoginPage() {
+export const LoginPage = () => {
   return (
     <main className='grid min-h-screen bg-slate-50 px-4 sm:px-6 lg:px-8'>
       <div className='mx-auto flex w-full max-w-6xl items-center justify-center py-8'>
@@ -39,4 +39,4 @@ export function LoginPage() {
       </div>
     </main>
   );
-}
+};
