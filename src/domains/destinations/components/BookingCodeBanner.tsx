@@ -1,11 +1,11 @@
 'use client';
 
-export const BookingCodeBanner = () => {
-  const bookingCode =
-    typeof window !== 'undefined'
-      ? sessionStorage.getItem('bookingCode')
-      : null;
+import { FC } from 'react';
+import { DestinationCodeBannerProps } from '../types';
 
+export const BookingCodeBanner: FC<DestinationCodeBannerProps> = ({
+  bookingCode,
+}) => {
   if (!bookingCode) {
     return null;
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getDestinations } from '@/src/services';
 import {
@@ -10,8 +10,9 @@ import {
 } from './components';
 import { filterDestinations, mapDestinationsToListItems } from './utils';
 import { Search } from '@/src/components';
+import { DestinationPageProps } from './types';
 
-export const DestinationsPage = () => {
+export const DestinationsPage: FC<DestinationPageProps> = ({ bookingCode }) => {
   const [search, setSearch] = useState('');
 
   const {
@@ -43,7 +44,7 @@ export const DestinationsPage = () => {
             Destinations
           </h1>
 
-          <BookingCodeBanner />
+          {bookingCode && <BookingCodeBanner bookingCode={bookingCode} />}
         </div>
 
         {!isPending && !isError && destinations.length > 0 && (

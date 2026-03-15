@@ -1,3 +1,9 @@
+export type DestinationPageProps = {
+  bookingCode?: string;
+};
+
+export type DestinationCodeBannerProps = DestinationPageProps & {};
+
 export type DestinationListItem = {
   countryName: string;
   countrySlug: string;

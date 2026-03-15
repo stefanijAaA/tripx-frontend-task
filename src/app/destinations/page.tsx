@@ -6,6 +6,7 @@ import { verifySessionToken } from '@/src/lib/session';
 export default async function Destinations() {
   const cookieStore = await cookies();
   const session = cookieStore.get('session')?.value;
+  const bookingCode = cookieStore.get('bookingCode')?.value ?? '';
 
   if (!session) {
     redirect('/login');
@@ -17,5 +18,5 @@ export default async function Destinations() {
     redirect('/login');
   }
 
-  return <DestinationsPage />;
+  return <DestinationsPage bookingCode={bookingCode} />;
 }
