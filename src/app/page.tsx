@@ -1,19 +1,8 @@
-import { cookies } from 'next/headers';
+import { getSessionPayload } from '@/src/lib';
 import { redirect } from 'next/navigation';
-import { verifySessionToken } from '@/src/lib/session';
 
 export default async function HomePage() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('session')?.value;
+  const session = await getSessionPayload();
 
-  if (!session) {
-    redirect('/login');
-  }
-
-  try {
-    await verifySessionToken(session);
-    redirect('/destinations');
-  } catch {
-    redirect('/login');
-  }
+  redirect(session ? '/destinations' : '/login');
 }

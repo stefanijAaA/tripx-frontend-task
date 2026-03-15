@@ -1,22 +1,12 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { DestinationsPage } from '@/src/domains';
-import { verifySessionToken } from '@/src/lib/session';
+import { requireAuthenticatedUser } from '@/src/lib/auth';
 
 export default async function Destinations() {
+  await requireAuthenticatedUser();
+
   const cookieStore = await cookies();
-  const session = cookieStore.get('session')?.value;
-  const bookingCode = cookieStore.get('bookingCode')?.value ?? '';
-
-  if (!session) {
-    redirect('/login');
-  }
-
-  try {
-    await verifySessionToken(session);
-  } catch {
-    redirect('/login');
-  }
+  const bookingCode = cookieStore.get('bookingCode')?.value;
 
   return <DestinationsPage bookingCode={bookingCode} />;
 }
