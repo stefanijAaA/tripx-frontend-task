@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/src/components';
+import { login, LoginServiceError } from '@/src/services';
 import { LoginFormValues } from '../types';
 import { loginSchema } from '../validation/schema';
-import { login } from '@/src/services';
 import {
   MAX_FAILED_ATTEMPTS,
   LOCKOUT_DURATION_SECONDS,
@@ -26,7 +27,8 @@ export const LoginForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    getValues,
+    formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -35,6 +37,49 @@ export const LoginForm = () => {
       bookingCode: '',
     },
     mode: 'onSubmit',
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: login,
+    retry: false,
+    onSuccess: () => {
+      setFailedAttempts(0);
+      setLockoutRemaining(0);
+      setFormError('');
+
+      const { bookingCode } = getValues();
+
+      if (bookingCode) {
+        sessionStorage.setItem('bookingCode', bookingCode);
+      } else {
+        sessionStorage.removeItem('bookingCode');
+      }
+
+      router.push('/destinations');
+      router.refresh();
+    },
+    onError: (error: LoginServiceError) => {
+      const shouldCountAsFailedAttempt = isCountableFailure(error.errorType);
+
+      if (shouldCountAsFailedAttempt) {
+        const nextFailedAttempts = failedAttempts + 1;
+
+        if (nextFailedAttempts >= MAX_FAILED_ATTEMPTS) {
+          setFailedAttempts(MAX_FAILED_ATTEMPTS);
+          setLockoutRemaining(LOCKOUT_DURATION_SECONDS);
+          setFormError(
+            `Too many failed attempts. Please wait ${LOCKOUT_DURATION_SECONDS} seconds and try again.`,
+          );
+          return;
+        }
+
+        setFailedAttempts(nextFailedAttempts);
+        setFormError(error.message);
+        return;
+      }
+
+      setFormError(error.message);
+    },
   });
 
   useEffect(() => {
@@ -58,52 +103,20 @@ export const LoginForm = () => {
     return () => clearInterval(interval);
   }, [isLocked]);
 
-  const onSubmit = async (values: LoginFormValues) => {
+  const onSubmit = (values: LoginFormValues) => {
     if (isLocked) {
       return;
     }
 
     setFormError('');
 
-    const result = await login({
+    loginMutation.mutate({
       username: values.username,
       password: values.password,
     });
-
-    if (!result.success) {
-      const shouldCountAsFailedAttempt = isCountableFailure(result.errorType);
-
-      if (shouldCountAsFailedAttempt) {
-        const nextFailedAttempts = failedAttempts + 1;
-
-        if (nextFailedAttempts >= MAX_FAILED_ATTEMPTS) {
-          setFailedAttempts(MAX_FAILED_ATTEMPTS);
-          setLockoutRemaining(LOCKOUT_DURATION_SECONDS);
-          setFormError(
-            `Too many failed attempts. Please wait ${LOCKOUT_DURATION_SECONDS} seconds before trying again.`,
-          );
-          return;
-        }
-
-        setFailedAttempts(nextFailedAttempts);
-      }
-
-      setFormError(result.message);
-      return;
-    }
-
-    setFailedAttempts(0);
-    setLockoutRemaining(0);
-    setFormError('');
-
-    if (values.bookingCode) {
-      sessionStorage.setItem('bookingCode', values.bookingCode);
-    } else {
-      sessionStorage.removeItem('bookingCode');
-    }
-
-    router.push('/destinations');
   };
+
+  const isSubmitting = loginMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-5' noValidate>
@@ -147,7 +160,7 @@ export const LoginForm = () => {
       <button
         type='submit'
         disabled={isSubmitting || isLocked}
-        className='w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer'
+        className='w-full cursor-pointer rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-200 disabled:cursor-not-allowed disabled:opacity-70'
       >
         {isSubmitting
           ? 'Signing in...'

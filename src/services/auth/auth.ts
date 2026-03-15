@@ -1,50 +1,42 @@
 import axios from 'axios';
 import { apiClient } from '../utils/client';
-import { LoginPayload, LoginResult } from './types';
+import { LoginPayload, LoginServiceError } from './types';
 import { AUTH_ERRORS } from './utils/constants';
 
-export const login = async (payload: LoginPayload): Promise<LoginResult> => {
+export const login = async (payload: LoginPayload): Promise<void> => {
   try {
     await apiClient.post('/api/login', payload);
-
-    return {
-      success: true,
-    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         const status = error.response.status;
 
         if (status === 400) {
-          return {
-            success: false,
+          throw {
             errorType: 'INVALID_CREDENTIALS',
             message: AUTH_ERRORS.INVALID_CREDENTIALS,
-          };
+          } satisfies LoginServiceError;
         }
 
         if (status >= 500) {
-          return {
-            success: false,
+          throw {
             errorType: 'SERVER_ERROR',
             message: AUTH_ERRORS.SERVER_ERROR,
-          };
+          } satisfies LoginServiceError;
         }
       }
 
       if (error.request) {
-        return {
-          success: false,
+        throw {
           errorType: 'NETWORK_ERROR',
           message: AUTH_ERRORS.GENERIC_ERROR,
-        };
+        } satisfies LoginServiceError;
       }
     }
 
-    return {
-      success: false,
+    throw {
       errorType: 'UNKNOWN_ERROR',
       message: AUTH_ERRORS.GENERIC_ERROR,
-    };
+    } satisfies LoginServiceError;
   }
 };

@@ -18,10 +18,17 @@ export async function createSessionToken(payload: SessionPayload) {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('1d')
+    .setIssuer('tripx-app')
+    .setAudience('tripx-users')
     .sign(secret);
 }
 
 export async function verifySessionToken(token: string) {
-  const { payload } = await jwtVerify(token, secret);
+  const { payload } = await jwtVerify(token, secret, {
+    algorithms: ['HS256'],
+    issuer: 'tripx-app',
+    audience: 'tripx-users',
+  });
+
   return payload as SessionPayload;
 }

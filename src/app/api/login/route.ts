@@ -1,5 +1,5 @@
+import { createSessionToken } from '@/src/lib';
 import { NextRequest, NextResponse } from 'next/server';
-import { createSessionToken } from '@/src/lib/session';
 
 const TRIPX_LOGIN_ENDPOINT =
   'https://tripx-test-functions.azurewebsites.net/api/login';
