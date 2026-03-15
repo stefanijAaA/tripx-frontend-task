@@ -11,7 +11,7 @@ export const Search: FC<SearchProps> = ({
   disabled,
 }) => {
   return (
-    <div className='flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm cursor-text overflow-hidden'>
+    <div className='flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm overflow-hidden'>
       <SearchIcon
         size={20}
         className='h-5 w-5 shrink-0 text-slate-400 pointer-events-none'

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getDestinations } from '@/src/services';
 import {
@@ -7,9 +8,12 @@ import {
   DestinationsList,
   DestinationsLoader,
 } from './components';
-import { mapDestinationsToListItems } from './utils';
+import { filterDestinations, mapDestinationsToListItems } from './utils';
+import { Search } from '@/src/components';
 
 export const DestinationsPage = () => {
+  const [search, setSearch] = useState('');
+
   const {
     data: destinations = [],
     isPending,
@@ -19,6 +23,17 @@ export const DestinationsPage = () => {
     queryFn: getDestinations,
     select: mapDestinationsToListItems,
   });
+
+  const filteredDestinations = filterDestinations(destinations, search);
+
+  const showBackendEmptyState =
+    !isPending && !isError && destinations.length === 0;
+
+  const showSearchEmptyState =
+    !isPending &&
+    !isError &&
+    destinations.length > 0 &&
+    filteredDestinations.length === 0;
 
   return (
     <main className='min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8'>
@@ -31,6 +46,16 @@ export const DestinationsPage = () => {
           <BookingCodeBanner />
         </div>
 
+        {!isPending && !isError && destinations.length > 0 && (
+          <div className='w-full max-w-md'>
+            <Search
+              value={search}
+              onChange={setSearch}
+              placeholder='Find your dream destination'
+            />
+          </div>
+        )}
+
         {isPending && <DestinationsLoader />}
 
         {isError && (
@@ -39,14 +64,21 @@ export const DestinationsPage = () => {
           </div>
         )}
 
-        {!isPending && !isError && destinations.length === 0 && (
+        {showBackendEmptyState && (
           <div className='rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm'>
-            No destinations found.
+            No destinations available.
           </div>
         )}
 
-        {!isPending && !isError && destinations.length > 0 && (
-          <DestinationsList destinations={destinations} />
+        {showSearchEmptyState && (
+          <div className='text-sm text-slate-600'>
+            Sorry, no destinations match your search. Try a different name,
+            country or alias.
+          </div>
+        )}
+
+        {!isPending && !isError && filteredDestinations.length > 0 && (
+          <DestinationsList destinations={filteredDestinations} />
         )}
       </div>
     </main>

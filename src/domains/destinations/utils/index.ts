@@ -1,1 +1,2 @@
-export * from './mappers';
+export * from './mapDestinationsToListItems';
+export * from './filterDestinations';
