@@ -14,6 +14,7 @@ import {
 import { isCountableFailure } from '../utils/helpers';
 import { FormInput } from '@/src/form-fields';
 import { BOOKING_CODE_KEY } from '@/src/utils';
+import { Eye, EyeOff } from 'lucide-react';
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -21,6 +22,7 @@ export const LoginForm = () => {
   const [formError, setFormError] = useState('');
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   const isLocked = lockoutRemaining > 0;
 
@@ -139,10 +141,21 @@ export const LoginForm = () => {
 
         <FormInput<LoginFormValues>
           name='password'
-          type='password'
+          type={showPassword ? 'text' : 'password'}
           label='Password'
           placeholder='Enter your password'
           disabled={isSubmitting || isLocked}
+          rightElement={
+            <button
+              type='button'
+              onClick={() => setShowPassword((previousValue) => !previousValue)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className='cursor-pointer text-slate-400 transition hover:text-slate-600 disabled:cursor-not-allowed'
+              disabled={isSubmitting || isLocked}
+            >
+              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+            </button>
+          }
         />
 
         <FormInput<LoginFormValues>
