@@ -65,7 +65,7 @@ export const DestinationsPage: FC<DestinationPageProps> = ({ bookingCode }) => {
             >
               <LogOut size={20} />
               <span className='hidden [@media(min-width:1024px)]:inline'>
-                {logoutMutation.isPending ? 'Signing out...' : 'Logout'}
+                Logout
               </span>
             </button>
           </div>
