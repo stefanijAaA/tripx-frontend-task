@@ -23,13 +23,14 @@ export const DestinationsPage: FC<DestinationPageProps> = ({ bookingCode }) => {
     isPending,
     isError,
   } = useQuery({
-    queryKey: ['destinations'],
+    queryKey: getDestinations.queryKey,
     queryFn: getDestinations,
     select: mapDestinationsToListItems,
   });
 
   const logoutMutation = useMutation({
     mutationFn: logout,
+    mutationKey: logout.queryKey,
     onSuccess: () => {
       router.push('/login');
       router.refresh();

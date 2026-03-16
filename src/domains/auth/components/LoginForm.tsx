@@ -6,8 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { login, LoginServiceError } from '@/src/services';
-import { LoginFormValues } from '../types';
-import { loginSchema } from '../validation/schema';
+import { LoginFormValues, loginSchema } from '../validation/schema';
 import {
   MAX_FAILED_ATTEMPTS,
   LOCKOUT_DURATION_SECONDS,
@@ -44,6 +43,7 @@ export const LoginForm = () => {
 
   const loginMutation = useMutation({
     mutationFn: login,
+    mutationKey: login.queryKey,
     retry: false,
     onSuccess: () => {
       setFailedAttempts(0);

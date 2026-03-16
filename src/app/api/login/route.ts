@@ -1,6 +1,10 @@
 import { createSessionToken } from '@/src/lib';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Backend login endpoint does not return a session cookie or JWT,
+// so we generate a short-lived session token on the frontend
+// to maintain authenticated state.
+
 const TRIPX_LOGIN_ENDPOINT =
   'https://tripx-test-functions.azurewebsites.net/api/login';
 

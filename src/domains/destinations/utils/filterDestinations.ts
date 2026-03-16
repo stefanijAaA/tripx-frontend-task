@@ -1,10 +1,6 @@
-const normalize = (value: string) => value.trim().toLowerCase();
+import { DestinationSearchItem } from '../types';
 
-type DestinationSearchItem = {
-  name: string;
-  countryName: string;
-  alias?: string[];
-};
+const normalize = (value: string) => value.trim().toLowerCase();
 
 export const filterDestinations = <T extends DestinationSearchItem>(
   destinations: T[],

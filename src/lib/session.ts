@@ -1,6 +1,9 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-const sessionSecret = process.env.SESSION_SECRET;
+// Backend login endpoint does not return a session cookie or JWT,
+// so we generate a short-lived session token on the frontend
+// to maintain authenticated state.
+const sessionSecret = 'iShouldComeFromBackend';
 
 if (!sessionSecret) {
   throw new Error('SESSION_SECRET is not set');

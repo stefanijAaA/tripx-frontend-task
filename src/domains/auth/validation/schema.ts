@@ -5,3 +5,5 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
   bookingCode: z.string().trim().optional().or(z.literal('')),
 });
+
+export type LoginFormValues = z.infer<typeof loginSchema>;

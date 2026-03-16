@@ -24,3 +24,9 @@ export type DestinationCardProps = {
 export type DestinationsListProps = {
   destinations: DestinationListItem[];
 };
+
+export type DestinationSearchItem = {
+  name: string;
+  countryName: string;
+  alias?: string[];
+};

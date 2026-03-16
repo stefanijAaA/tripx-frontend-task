@@ -1,6 +1,6 @@
 'use client';
 
-import { FieldValues, useFormContext } from 'react-hook-form';
+import { FieldValues, useController, useFormContext } from 'react-hook-form';
 import { Input } from '@/src/components';
 import { FormInputProps } from './types';
 
@@ -8,12 +8,11 @@ export const FormInput = <T extends FieldValues>({
   name,
   ...props
 }: FormInputProps<T>) => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<T>();
+  const { control } = useFormContext<T>();
 
-  const error = errors[name]?.message?.toString();
+  const { field, fieldState } = useController({ name, control });
 
-  return <Input id={name} error={error} {...register(name)} {...props} />;
+  const error = fieldState?.error?.message?.toString() ?? '';
+
+  return <Input id={name} error={error} {...field} {...props} />;
 };

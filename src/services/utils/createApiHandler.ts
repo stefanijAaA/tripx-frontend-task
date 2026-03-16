@@ -1,9 +1,10 @@
 import { TFunction } from './types';
 
 export const createApiHandler = <
-  T extends TFunction,
-  Q extends TFunction | unknown[],
+  TArgs extends unknown[],
+  TResult,
+  Q extends readonly unknown[],
 >(
-  handler: T,
+  handler: TFunction<TArgs, TResult>,
   queryKey: Q,
 ) => Object.assign(handler, { queryKey });
