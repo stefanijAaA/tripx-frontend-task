@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -12,11 +12,13 @@ import {
 } from './components';
 import { filterDestinations, mapDestinationsToListItems } from './utils';
 import { Search } from '@/src/components';
-import { DestinationPageProps } from './types';
+import { BOOKING_CODE_KEY } from '@/src/utils';
+import { useLocalStorageItem } from '@/src/hooks';
 
-export const DestinationsPage: FC<DestinationPageProps> = ({ bookingCode }) => {
+export const DestinationsPage = () => {
   const [search, setSearch] = useState('');
   const router = useRouter();
+  const bookingCode = useLocalStorageItem(BOOKING_CODE_KEY);
 
   const {
     data: destinations = [],
@@ -32,6 +34,7 @@ export const DestinationsPage: FC<DestinationPageProps> = ({ bookingCode }) => {
     mutationFn: logout,
     mutationKey: logout.queryKey,
     onSuccess: () => {
+      localStorage.removeItem(BOOKING_CODE_KEY);
       router.push('/login');
       router.refresh();
     },

@@ -1,9 +1,3 @@
-export type DestinationPageProps = {
-  bookingCode?: string;
-};
-
-export type DestinationCodeBannerProps = DestinationPageProps & {};
-
 export type DestinationListItem = {
   countryName: string;
   countrySlug: string;
@@ -29,4 +23,8 @@ export type DestinationSearchItem = {
   name: string;
   countryName: string;
   alias?: string[];
+};
+
+export type DestinationCodeBannerProps = {
+  bookingCode?: string;
 };

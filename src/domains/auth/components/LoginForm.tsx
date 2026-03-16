@@ -10,11 +10,10 @@ import { LoginFormValues, loginSchema } from '../validation/schema';
 import {
   MAX_FAILED_ATTEMPTS,
   LOCKOUT_DURATION_SECONDS,
-  BOOKING_CODE_COOKIE,
 } from '../utils/constants';
 import { isCountableFailure } from '../utils/helpers';
-import { deleteCookie, setCookie } from '@/src/utils/cookies';
 import { FormInput } from '@/src/form-fields';
+import { BOOKING_CODE_KEY } from '@/src/utils';
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -53,9 +52,9 @@ export const LoginForm = () => {
       const { bookingCode } = getValues();
 
       if (bookingCode) {
-        setCookie(BOOKING_CODE_COOKIE, bookingCode, 60 * 60 * 24);
+        localStorage.setItem(BOOKING_CODE_KEY, bookingCode);
       } else {
-        deleteCookie(BOOKING_CODE_COOKIE);
+        localStorage.removeItem(BOOKING_CODE_KEY);
       }
 
       router.push('/destinations');

@@ -1,8 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 
-// Backend login endpoint does not return a session cookie or JWT,
-// so we generate a short-lived session token on the frontend
-// to maintain authenticated state.
+// For demo purposes, secret key used for cookie encryption is hardocded
+// instead of coming from .env
 const sessionSecret = 'iShouldComeFromBackend';
 
 if (!sessionSecret) {
