@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+  async rewrites() {
+    return [
+      {
+        source: '/api/destinations',
+        destination: 'https://book.tripx.se/wp-json/tripx/v1/destinations',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
